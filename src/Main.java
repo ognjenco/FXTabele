@@ -5,11 +5,13 @@ import java.util.List;
 
 import javafx.application.Application;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.stage.Stage;
 import javafx.util.Callback;
+import javafx.util.StringConverter;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.TableCell;
@@ -38,6 +40,14 @@ public class Main extends Application {
 			TableView<Trener> tabela=new TableView<Trener>();
 
 			tabela.getSelectionModel().setCellSelectionEnabled(true);
+			tabela.getSelectionModel().selectedIndexProperty().addListener(new ChangeListener<Number>() {
+
+				@Override
+				public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+					// TODO Auto-generated method stub
+					System.out.println("Izabran red: "+newValue);
+				}
+			});
 			tabela.setEditable(true);
 			TableColumn<Trener, String> brTel=new TableColumn<Trener, String>("Broj Telefona");
 			brTel.setCellFactory(new Callback<TableColumn<Trener,String>, TableCell<Trener,String>>() {
@@ -45,14 +55,40 @@ public class Main extends Application {
 				@Override
 				public TableCell<Trener, String> call(TableColumn<Trener, String> param) {
 					// TODO Auto-generated method stub
-					return new Celija();
+					TextFieldTableCell< Trener, String> tf=new TextFieldTableCell<>();
+					tf.setConverter(new StringConverter<String>() {
+
+						@Override
+						public String toString(String object) {
+							// TODO Auto-generated method stub
+							return object;
+						}
+
+						@Override
+						public String fromString(String string) {
+							// TODO Auto-generated method stub
+							return string;
+						}
+					});
+					return tf;
 				}
 			});
 			brTel.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<Trener,String>, ObservableValue<String>>() {
 
 				@Override
 				public ObservableValue<String> call(CellDataFeatures<Trener, String> param) {
-					return new SimpleStringProperty(param.getValue().getBrojTelefona());
+					Trener tr=param.getValue();
+					SimpleStringProperty sp=new SimpleStringProperty(tr.getBrojTelefona());
+					sp.addListener(new ChangeListener<String>() {
+
+						@Override
+						public void changed(ObservableValue<? extends String> observable, String oldValue,
+								String newValue) {
+							// TODO Auto-generated method stub
+							tr.setBrojTelefona(newValue);
+						}
+					});
+					return sp;
 				}
 			});
 			tabela.getColumns().add(brTel);
